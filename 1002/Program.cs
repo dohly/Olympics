@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace _1002
 {
-    class TelephonesSolution
+
+    class Word
     {
         static Dictionary<string, string> DigitToChar = new Dictionary<string, string>()
             {
@@ -20,54 +20,7 @@ namespace _1002
                 {"9","wxy"},
                 {"0","oqz"}
             };
-
-        public string Telephone;
-        public List<string> Words = new List<string>();
-        public string GetResult()
-        {
-            IEnumerable<KeyValuePair<string, string>> wordsInTelephone = (from word in Words
-                                                                          let digital = WordToDigits(word)
-                                                                          where Telephone.Contains(digital)
-                                                                          select new KeyValuePair<string, string>(digital, word));
-            if (wordsInTelephone.Any())
-            {
-                var solution = FindSolution(Telephone, wordsInTelephone);
-                if (solution != null)
-                {
-                    solution.Reverse();
-                    return string.Join(" ", solution.Select(x => x.Value));
-                }
-            }
-            return "No solution.";
-        }
-
-        private List<KeyValuePair<string, string>> FindSolution(string telephone, IEnumerable<KeyValuePair<string, string>> wordsInTelephone)
-        {
-            if (string.IsNullOrEmpty(telephone))
-            {
-                return null;
-            }
-            if (wordsInTelephone.Any(x => x.Key == telephone))
-            {
-                var first = wordsInTelephone.First(x => x.Key == telephone);
-                return new List<KeyValuePair<string, string>>() { first };
-            }
-            var startWith = wordsInTelephone.Where(x => telephone.StartsWith(x.Key)).OrderByDescending(x => x.Key.Length);
-            foreach (var pair in startWith)
-            {
-                string cut = telephone.Substring(pair.Key.Length);
-                var solution = FindSolution(cut, wordsInTelephone);
-                if (solution != null)
-                {
-                    solution.Add(pair);
-                    return solution;
-                }
-            }
-            return new List<KeyValuePair<string, string>>();
-        }
-
-
-        private string WordToDigits(string word)
+        private static string WordToDigits(string word)
         {
             string result = "";
             foreach (char c in word)
@@ -77,13 +30,83 @@ namespace _1002
             }
             return result;
         }
+        public string Text { get; private set; }
+        public string Digits { get; private set; }
+        public int CountInTelephone { get; set; }
+        public Word(string text)
+        {
+            Text = text;
+            Digits = WordToDigits(text);
+        }
+
+        public void CalculateCount(string telephone)
+        {
+            CountInTelephone = 0;
+            while (telephone.IndexOf(Digits)!=-1)
+            {
+                telephone = telephone.Remove(telephone.IndexOf(Digits), Digits.Length);
+                CountInTelephone++;
+            }
+        }
     }
+    class TelephonesSolution
+    {
+        public string Telephone;
+        public List<Word> Words = new List<Word>();
+       
+        public string GetResult()
+        {
+            List<List<Word>> result = new List<List<Word>>();
+            Words = Words.OrderByDescending(x => x.Digits.Length).ToList();
+            foreach (var word in Words)
+            {
+                word.CalculateCount(Telephone);
+            }
+            if (result.Any())
+            {
+                var best = result.OrderBy(x => x.Count).First();
+                return string.Join(" ", best.Select(x => x.Text));
+            }
+            return "No solution.";
+        }
+    }
+
     class Program
     {
         static void Main(string[] args)
         {
             List<TelephonesSolution> solutions = new List<TelephonesSolution>();
-            while (true)
+            bool enableConsoleInput = true;
+            if (!enableConsoleInput)
+            {
+                TelephonesSolution ts = new TelephonesSolution()
+                    {
+                        Telephone = "7325189087",
+                        Words = new List<Word>()
+                            {
+                                new Word("it"),
+                                new Word("your"),
+                                new Word("reality"),
+                                new Word("real"),
+                                new Word("our")
+                            }
+                    };
+                solutions.Add(ts);
+                ts = new TelephonesSolution()
+                {
+                    Telephone = "4294967296",
+                    Words = new List<Word>()
+                            {
+                                new Word("it"),
+                                new Word("your"),
+                                new Word("reality"),
+                                new Word("real"),
+                                new Word("our")
+                            }
+                };
+                solutions.Add(ts);
+            }
+            while (true && enableConsoleInput)
             {
                 TelephonesSolution telephones = new TelephonesSolution();
                 telephones.Telephone = Console.ReadLine();
@@ -94,13 +117,23 @@ namespace _1002
                 int count = int.Parse(Console.ReadLine());
                 for (int i = 0; i < count; i++)
                 {
-                    telephones.Words.Add(Console.ReadLine());
+                    string text = Console.ReadLine();
+                    if (text.Length > telephones.Telephone.Length)
+                    {
+                        continue;
+                    }
+                    Word word = new Word(text);
+                    if (telephones.Telephone.Contains(word.Digits))
+                    {
+                        telephones.Words.Add(word);
+                    }
                 }
                 solutions.Add(telephones);
             }
             foreach (var telephonesSolution in solutions)
             {
-                Console.WriteLine(telephonesSolution.GetResult());
+                string result = telephonesSolution.GetResult();
+                Console.WriteLine(result);
             }
         }
     }
