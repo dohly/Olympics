@@ -9,14 +9,14 @@ namespace _1349
     {
         static void Main(string[] args)
         {
-            int N = int.Parse(Console.ReadLine());
-            if (N == 1)
+            switch (Console.ReadLine())
             {
-                Console.WriteLine("1 2 3");
-            }
-            else
-            {
-                Console.WriteLine(-1);
+                case "1": Console.WriteLine("1 2 3");
+                    break;
+                case "2":Console.WriteLine("3 4 5");
+                    break;
+                default:Console.WriteLine(-1);
+                    break;
             }
         }
     }
