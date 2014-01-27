@@ -11,15 +11,27 @@ namespace _1877
         {
             int N1 = int.Parse(Console.ReadLine());
             int N2 = int.Parse(Console.ReadLine());
-            if (N1 % 2 == 0 && N2%2!=0)
+            int max = N1 > N2 ? N1 : N2;
+            int code = 0;
+            int codeVelo = N1;
+            while (code<=max)
             {
-                Console.WriteLine("Yes");
+                if (code == codeVelo)
+                {
+                    Console.WriteLine("Yes");
+                    return;
+                }
+                if (codeVelo == N1)
+                {
+                    codeVelo = N2;
+                }
+                else
+                {
+                    codeVelo = N1;
+                }
+                code++;
             }
-            else
-            {
-                Console.WriteLine("No");
-            }
-
+            Console.WriteLine("No");
         }
     }
 }
